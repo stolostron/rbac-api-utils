@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"golang.org/x/exp/slices"
-
 	authorizationv1 "k8s.io/api/authorization/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -91,6 +90,10 @@ func (r *AccessReviewer) getKubeClientForUser(userToken string) (kubernetes.Inte
 		if userToken != "" {
 			// make a copy of the RestConfig to avoid overwrites when multiple api calls are made in parallel
 			userKubeConfig := rest.CopyConfig(r.kubeConfig)
+
+			// tokenfile takes precedence over token,
+			// set tokenfile to empty to ensure token is used
+			userKubeConfig.BearerTokenFile = ""
 			userKubeConfig.BearerToken = userToken
 			// create the clientset
 			kclient, err := kubernetes.NewForConfig(userKubeConfig)
