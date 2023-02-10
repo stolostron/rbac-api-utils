@@ -110,6 +110,35 @@ roleRef:
 ---
 `
 
+const NonMetricAcls = `
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: listcusters
+rules:
+  - apiGroups:
+      - "cluster.open-cluster-management.io"
+    resources:
+      - managedclusters
+    verbs:
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: listclusters-binding
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: cluster-listers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: listclusters
+---
+`
+
 var (
 	baseK8sConfig *rest.Config
 	baseK8sClient kubernetes.Interface
@@ -139,6 +168,10 @@ var (
 		"user-sysadmin": {
 			nil, // set after startUp
 			[]string{"system-admins"},
+		},
+		"user-clusterlister": {
+			nil, // set after startUp
+			[]string{"cluster-listers"},
 		},
 	}
 	testRbacResourceYamls = []string{blueMetricsAccessYaml, redMetricsAccessYaml, systemMetricsAccessOnAllClusterYaml}

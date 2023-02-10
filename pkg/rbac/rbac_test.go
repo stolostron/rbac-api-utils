@@ -136,6 +136,23 @@ func TestGetMetricsAccess(t *testing.T) {
 			},
 			nil,
 		},
+		{ // cluster listers should have no metrics acl entries
+			"user-clusterlister",
+			testUsers["user-clusterlister"].KubeClient,
+			[]string{},
+			map[string][]string{},
+			nil,
+		},
+		{ // cluster listers should have no metrics acl entries
+			"user-clusterlister",
+			testUsers["user-clusterlister"].KubeClient,
+			[]string{"devcluster1", "devcluster2"},
+			map[string][]string{
+				"devcluster1": {},
+				"devcluster2": {},
+			},
+			nil,
+		},
 	}
 
 	for _, test := range testcases {
