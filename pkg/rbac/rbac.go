@@ -163,7 +163,11 @@ func (r *AccessReviewer) GetMetricsAccess(userToken string, clusters ...string) 
 		}
 
 		klog.V(2).Infof("clustername [%s], Namespaces with metrics access[%s]\n", clustername, nsWithMetricsAccess)
-		metricsAccessResults[clustername] = nsWithMetricsAccess
+
+		// add cluster to returned map if metrics acls are set for it
+		if len(nsWithMetricsAccess) > 0 || slices.Contains(clusters, clustername) {
+			metricsAccessResults[clustername] = nsWithMetricsAccess
+		}
 	}
 
 	klog.V(2).Infof(" metricsAccessResults is %v", metricsAccessResults)
