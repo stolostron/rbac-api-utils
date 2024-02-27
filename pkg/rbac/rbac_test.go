@@ -215,10 +215,12 @@ func TestMakeSubjectAccessRulesReviewForUser(t *testing.T) {
 		{"user-no-specific-access", testUsers["user-no-specific-access"].KubeClient, "", 1},
 		// basic rule + access to red-metrics + access to blue-metrics
 		{"user-purple", testUsers["user-purple"].KubeClient, "", 3},
+		{"user-view-all-default-namespace", testUsers["user-view-all-default-namespace"].KubeClient, "", 1},
+		{"user-view-all-default-namespace", testUsers["user-view-all-default-namespace"].KubeClient, "default", 2},
 	}
 
 	for _, test := range testcases {
-		accessrules, err := makeSubjectAccessRulesReviewForUser(test.kubeClient, "")
+		accessrules, err := makeSubjectAccessRulesReviewForUser(test.kubeClient, test.namespace)
 		if err != nil {
 			t.Fatalf(err.Error())
 		}
