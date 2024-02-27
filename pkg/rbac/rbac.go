@@ -279,7 +279,7 @@ func addUniqueItems(itemlist []string, itemsToAdd ...string) []string {
 // configured for the user.
 //
 // - namespace is the namespace to set  in the selfsubjectaccessreview call, if not specified
-// it defaults to "default"
+// it defaults to an invalid namespace to limit the response to cluster scoped resources.
 func makeSubjectAccessRulesReviewForUser(
 	kclient kubernetes.Interface, namespace string,
 ) ([]authorizationv1.ResourceRule, error) {
@@ -293,7 +293,9 @@ func makeSubjectAccessRulesReviewForUser(
 	// if the call is successful then this function returns a list of resourcerules
 
 	if namespace == "" {
-		namespace = "default"
+		// This is a workaround for SelfSubjectRulesReview errantly accepting RoleBindings on the default namespace
+		// for cluster scoped access. Only ClusterRoleBindings actually affect access.
+		namespace = "$ Invalid $"
 	}
 
 	sarr := &authorizationv1.SelfSubjectRulesReview{

@@ -139,6 +139,36 @@ roleRef:
 ---
 `
 
+const viewAllDefaultNamespace = `
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: view-all
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - "get"
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: view-all
+  namespace: default
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: view-all-default-namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view-all
+---
+`
+
 var (
 	baseK8sConfig *rest.Config
 	baseK8sClient kubernetes.Interface
@@ -173,8 +203,14 @@ var (
 			nil, // set after startUp
 			[]string{"cluster-listers"},
 		},
+		"user-view-all-default-namespace": {
+			nil, // set after startUp
+			[]string{"view-all-default-namespace"},
+		},
 	}
-	testRbacResourceYamls = []string{blueMetricsAccessYaml, redMetricsAccessYaml, systemMetricsAccessOnAllClusterYaml}
+	testRbacResourceYamls = []string{
+		blueMetricsAccessYaml, redMetricsAccessYaml, systemMetricsAccessOnAllClusterYaml, viewAllDefaultNamespace,
+	}
 )
 
 func TestMain(m *testing.M) {
@@ -272,12 +308,18 @@ func SetupRBACResources(resourcesYaml string) error {
 			if err != nil {
 				return err
 			}
-
+		case *rbacv1.RoleBinding:
+			_, err = baseK8sClient.RbacV1().RoleBindings(obj.Namespace).Create(ctx, obj, metav1.CreateOptions{})
+			if err != nil {
+				return err
+			}
 		case *rbacv1.ClusterRoleBinding:
 			_, err = baseK8sClient.RbacV1().ClusterRoleBindings().Create(ctx, obj, metav1.CreateOptions{})
 			if err != nil {
 				return err
 			}
+		default:
+			panic("Unsupported RBAC resource")
 		}
 	}
 
