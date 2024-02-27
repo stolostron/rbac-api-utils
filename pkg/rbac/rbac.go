@@ -89,7 +89,17 @@ func (r *AccessReviewer) getKubeClientForUser(userToken string) (kubernetes.Inte
 		// if a valid userToken
 		if userToken != "" {
 			// make a copy of the RestConfig to avoid overwrites when multiple api calls are made in parallel
-			userKubeConfig := rest.CopyConfig(r.kubeConfig)
+			userKubeConfig := &rest.Config{
+				Host:    r.kubeConfig.Host,
+				APIPath: r.kubeConfig.APIPath,
+				TLSClientConfig: rest.TLSClientConfig{
+					CAFile:     r.kubeConfig.TLSClientConfig.CAFile,
+					CAData:     r.kubeConfig.TLSClientConfig.CAData,
+					ServerName: r.kubeConfig.TLSClientConfig.ServerName,
+					// For testing
+					Insecure: r.kubeConfig.TLSClientConfig.Insecure,
+				},
+			}
 
 			// tokenfile takes precedence over token,
 			// set tokenfile to empty to ensure token is used
