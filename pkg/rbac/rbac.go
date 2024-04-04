@@ -322,10 +322,11 @@ func makeSubjectRulesReviewForUser(
 
 	sarrStatus := response.Status
 
-	klog.V(2).Infof("Is sarr incomplete : %v", namespace)
-
-	if sarrStatus.Incomplete || len(sarrStatus.EvaluationError) != 0 {
-		return nil, fmt.Errorf("SelfSubjectRulesReview call did not succeed")
+	// Log the evaluation error but don't block since partial results is better than completely failing.
+	if sarrStatus.EvaluationError != "" {
+		klog.Infof(
+			"Encountered a SelfSubjectRulesReviews error in namespace %s: %v", namespace, sarrStatus.EvaluationError,
+		)
 	}
 
 	klog.V(2).Infof("Resources Rule : %v", sarrStatus.ResourceRules)
