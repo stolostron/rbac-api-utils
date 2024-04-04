@@ -195,7 +195,7 @@ func compareMetricsAccessResults(expectedResults map[string][]string, gotResults
 	return true
 }
 
-func TestMakeSubjectAccessRulesReviewForUser(t *testing.T) {
+func TestMakeSubjectRulesReviewForUser(t *testing.T) {
 	t.Parallel()
 
 	testcases := []struct {
@@ -220,7 +220,7 @@ func TestMakeSubjectAccessRulesReviewForUser(t *testing.T) {
 	}
 
 	for _, test := range testcases {
-		accessrules, err := makeSubjectAccessRulesReviewForUser(test.kubeClient, test.namespace)
+		accessrules, err := makeSubjectRulesReviewForUser(test.kubeClient, test.namespace)
 		if err != nil {
 			t.Fatalf(err.Error())
 		}
