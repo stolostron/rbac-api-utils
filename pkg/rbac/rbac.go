@@ -201,7 +201,7 @@ func GetResourceAccess(
 		"GetResourceAccess for GroupResource: %s, resourcenames: %v, namespace: %s", gr, resourcenames, namespace)
 
 	// make a SelfSubjectRulesReview to get all resource rules.
-	resourceRules, err := makeSubjectAccessRulesReviewForUser(kclient, namespace)
+	resourceRules, err := makeSubjectRulesReviewForUser(kclient, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -284,13 +284,13 @@ func addUniqueItems(itemlist []string, itemsToAdd ...string) []string {
 	return resultList
 }
 
-// makeSubjectAccessRulesReviewForUser is a helper function that makes a selfsubjectrulesreview call
+// makeSubjectRulesReviewForUser is a helper function that makes a SelfSubjectRulesReview call
 // on the k8s cluster. If the call is successful then it returns a slice of all ResourceRules
 // configured for the user.
 //
 // - namespace is the namespace to set  in the selfsubjectaccessreview call, if not specified
 // it defaults to an invalid namespace to limit the response to cluster scoped resources.
-func makeSubjectAccessRulesReviewForUser(
+func makeSubjectRulesReviewForUser(
 	kclient kubernetes.Interface, namespace string,
 ) ([]authorizationv1.ResourceRule, error) {
 	klog.V(2).Infof("Make Subject Access Rules Review for Namespace %s", namespace)
@@ -325,7 +325,7 @@ func makeSubjectAccessRulesReviewForUser(
 	klog.V(2).Infof("Is sarr incomplete : %v", namespace)
 
 	if sarrStatus.Incomplete || len(sarrStatus.EvaluationError) != 0 {
-		return nil, fmt.Errorf("SubjectAccessRulesReview call did not succeed")
+		return nil, fmt.Errorf("SelfSubjectRulesReview call did not succeed")
 	}
 
 	klog.V(2).Infof("Resources Rule : %v", sarrStatus.ResourceRules)
